@@ -23,6 +23,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className="bg-white text-black dark:bg-[#111827] dark:text-white transition-colors duration-300">
         <ThemeProvider>{children}</ThemeProvider>
+        
       </body>
     </html>
   );

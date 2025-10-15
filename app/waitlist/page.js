@@ -1,5 +1,6 @@
 import Head from "next/head";
-import WaitlistNavbar from "/components/WaitlistNavbar";
+import WaitlistNav from "@/components/WaitlistNav";
+//import WaitlistNavbar from "/components/WaitlistNavbar";
 import WaitlistHero from "/components/WaitlistHero";
 import Countdown from "/components/Countdown";
 import Mission from "/components/Mission";
@@ -22,7 +23,7 @@ export default function Home() {
         <meta property="og:description" content="Learn Yoruba, Igbo, Hausa fast, fun, and culturally authentic with AI-powered LangMaster." />
         <meta property="og:image" content="/logo.png" />
       </Head>
-       <WaitlistNavbar />
+      <WaitlistNav />
          <WaitlistHero />
             <Countdown />
              <Mission />

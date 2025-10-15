@@ -13,12 +13,12 @@ export default function Navbar() {
         
         <Link href="/" className="flex items-center space-x-2">
           <Image
-            src="/logo-icon.png" 
+            src="/LM.png" 
             alt="LangMaster Icon"
             width={30}
             height={30}
           />
-          <span className="font-bold text-lg text-[#363D49]">LangMaster</span>
+          <span className="font-bold text-lg text-[#363D49]"></span>
         </Link>
 
     
@@ -28,7 +28,7 @@ export default function Navbar() {
           <Link href="/blog" className="hover:text-[#267E43]">Blog</Link>
           <Link href="/pricing" className="hover:text-[#267E43]">Pricing</Link>
           <Link
-            href="/"
+            href="/waitlist"
             className="px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-100 transition"
           >
             Sign In
