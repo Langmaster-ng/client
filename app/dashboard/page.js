@@ -9,6 +9,8 @@ import ProgressOverview from "@/components/dashboard/ProgressOverview";
 import RecommendedLessons from "@/components/dashboard/RecommendedLessons";
 import Achievements from "@/components/dashboard/Achievements";
 
+
+
 export default function DashboardPage() {
   return (
     <main className="relative min-h-screen bg-gray-50">
