@@ -6,8 +6,8 @@ export function middleware(request) {
   // Allow these paths to load normally
   if (
     url.pathname.startsWith("/waitlist") ||
-    url.pathname.startsWith("/_next") || // Next.js internals
-    url.pathname.startsWith("/api") || // API routes
+    url.pathname.startsWith("/_next") || 
+    url.pathname.startsWith("/api") || 
     url.pathname.startsWith("/static") ||
     url.pathname.startsWith("/favicon") ||
     url.pathname.startsWith("/robots") ||
@@ -16,7 +16,7 @@ export function middleware(request) {
     return NextResponse.next();
   }
 
-  // ✅ Redirect everything else to /waitlist
+  // Redirect everything else to /waitlist
   url.pathname = "/waitlist";
   return NextResponse.redirect(url);
 }
