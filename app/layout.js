@@ -37,7 +37,7 @@ export const metadata = {
     siteName: "LangMaster",
     images: [
       {
-        url: "/favicon.png",
+        url: "https://www.thelangmaster.com/favicon.png",
         width: 1200,
         height: 630,
         alt: "LangMaster — AI Language Tutor",
