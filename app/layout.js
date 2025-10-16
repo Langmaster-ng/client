@@ -1,14 +1,12 @@
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { Inter } from "next/font/google";
+import { redirect } from "next/navigation";
 
-// ✅ Modern, legible Google font (auto-optimal subset)
+
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
-/**
- * ✅ Default SEO metadata
- * You can dynamically override per page using export const metadata in each page file
- */
+
 export const metadata = {
   title: {
     default: "LangMaster | Learn Nigerian Languages with AI",
@@ -39,7 +37,7 @@ export const metadata = {
     siteName: "LangMaster",
     images: [
       {
-        url: "/favicon.png", // put this in your /public folder
+        url: "/favicon.png",
         width: 1200,
         height: 630,
         alt: "LangMaster — AI Language Tutor",
@@ -53,7 +51,7 @@ export const metadata = {
     title: "LangMaster — Learn Nigerian Languages with AI",
     description:
       "Gamified language learning powered by AI. Learn Yoruba, Igbo, Hausa & more — one culture at a time.",
-    creator: "@langmaster_connect", 
+    creator: "@langmaster_connect",
     images: ["/favicon.png"],
   },
   themeColor: "#047857",
@@ -80,11 +78,32 @@ export const metadata = {
     viewportFit: "cover",
   },
   verification: {
-    google: "YOUR_GOOGLE_SITE_VERIFICATION_ID", // optional
+    google: "YOUR_GOOGLE_SITE_VERIFICATION_ID",
   },
 };
 
 export default function RootLayout({ children }) {
+  // ============================================
+  // 🚧 Temporary Global Redirect to /waitlist
+  // ============================================
+
+  const waitlistMode = true; 
+
+  if (waitlistMode && typeof window === "undefined") {
+    const isLocal =
+      process.env.VERCEL_ENV === "development" ||
+      process.env.NODE_ENV === "development";
+    const isPreview = process.env.VERCEL_ENV === "preview";
+
+   
+    if (!isLocal && !isPreview) {
+      // avoid infinite loop when already on /waitlist
+      if (!globalThis?.location?.pathname?.startsWith?.("/waitlist")) {
+        redirect("/waitlist");
+      }
+    }
+  }
+
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
       <head />
