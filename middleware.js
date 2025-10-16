@@ -3,27 +3,34 @@ import { NextResponse } from "next/server";
 export function middleware(request) {
   const url = request.nextUrl.clone();
 
-  // Allow these paths to load normally
+  // ✅ Allow certain paths to load normally
   if (
     url.pathname.startsWith("/waitlist") ||
-    url.pathname.startsWith("/_next") || 
-    url.pathname.startsWith("/api") || 
+    url.pathname.startsWith("/_next") || // internal Next.js
+    url.pathname.startsWith("/api") ||
     url.pathname.startsWith("/static") ||
     url.pathname.startsWith("/favicon") ||
     url.pathname.startsWith("/robots") ||
-    url.pathname.startsWith("/sitemap")
+    url.pathname.startsWith("/sitemap") ||
+    url.pathname.startsWith("/images") || // ✅ add your public/images folder
+    url.pathname.endsWith(".png") || // ✅ allow pngs
+    url.pathname.endsWith(".jpg") ||
+    url.pathname.endsWith(".jpeg") ||
+    url.pathname.endsWith(".svg") ||
+    url.pathname.endsWith(".webp") ||
+    url.pathname.endsWith(".ico")
   ) {
     return NextResponse.next();
   }
 
-  // Redirect everything else to /waitlist
+  // ✅ Redirect all other routes to /waitlist
   url.pathname = "/waitlist";
   return NextResponse.redirect(url);
 }
 
-// Apply middleware to all routes except assets
+// Apply globally except static routes
 export const config = {
   matcher: [
-    "/((?!_next|api|static|waitlist|favicon.ico|robots.txt|sitemap.xml).*)",
+    "/((?!_next|api|static|waitlist|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:png|jpg|jpeg|svg|webp|ico)).*)",
   ],
 };
