@@ -88,22 +88,8 @@ export default function RootLayout({ children }) {
   // ============================================
 
   const waitlistMode = true; 
-
-  if (waitlistMode && typeof window === "undefined") {
-    const isLocal =
-      process.env.VERCEL_ENV === "development" ||
-      process.env.NODE_ENV === "development";
-    const isPreview = process.env.VERCEL_ENV === "preview";
-
    
-    if (!isLocal && !isPreview) {
-      // avoid infinite loop when already on /waitlist
-      if (!globalThis?.location?.pathname?.startsWith?.("/waitlist")) {
-        redirect("/waitlist");
-      }
-    }
-  }
-
+ 
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
       <head />
