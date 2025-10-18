@@ -79,7 +79,7 @@ export const metadata = {
     viewportFit: "cover",
   },
   verification: {
-    google: "P5P5x2wkEiR6NpMhZX4GIK_hIvYmM_otP5VsKM8p0uA", // ✅ Your Google Site Verification ID
+    google: "P5P5x2wkEiR6NpMhZX4GIK_hIvYmM_otP5VsKM8p0uA", 
   },
 };
 
