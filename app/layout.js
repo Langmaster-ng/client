@@ -1,7 +1,7 @@
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { Inter } from "next/font/google";
-import { redirect } from "next/navigation";
+import Script from "next/script"; // ✅ import Next.js Script component
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
@@ -79,31 +79,39 @@ export const metadata = {
     viewportFit: "cover",
   },
   verification: {
-    google: "P5P5x2wkEiR6NpMhZX4GIK_hIvYmM_otP5VsKM8p0uA", 
+    google: "P5P5x2wkEiR6NpMhZX4GIK_hIvYmM_otP5VsKM8p0uA",
   },
 };
 
 export default function RootLayout({ children }) {
-  // 🚧 Temporary Global Redirect to /waitlist
   if (typeof window !== "undefined" && window.location.pathname !== "/waitlist") {
     window.location.href = "/waitlist";
   }
 
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q9R09S5L05"></script>
-  <script
-    dangerouslySetInnerHTML={{
-      __html: `
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-Q9R09S5L05');
-      `,
-    }}
-  />
       <head />
       <body className="min-h-screen bg-white text-black dark:bg-[#111827] dark:text-white transition-colors duration-300 antialiased selection:bg-[#22C55E]/30">
+        {/* Google Analytics setup */}
+        <Script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-Q9R09S5L05"
+          strategy="afterInteractive"
+        />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-Q9R09S5L05', {
+                page_path: window.location.pathname,
+              });
+            `,
+          }}
+        />
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
