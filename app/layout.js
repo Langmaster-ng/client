@@ -91,6 +91,17 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q9R09S5L05"></script>
+  <script
+    dangerouslySetInnerHTML={{
+      __html: `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-Q9R09S5L05');
+      `,
+    }}
+  />
       <head />
       <body className="min-h-screen bg-white text-black dark:bg-[#111827] dark:text-white transition-colors duration-300 antialiased selection:bg-[#22C55E]/30">
         <ThemeProvider>{children}</ThemeProvider>
