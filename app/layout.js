@@ -3,9 +3,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { Inter } from "next/font/google";
 import { redirect } from "next/navigation";
 
-
 const inter = Inter({ subsets: ["latin"], display: "swap" });
-
 
 export const metadata = {
   title: {
@@ -18,6 +16,9 @@ export const metadata = {
     "LangMaster",
     "Nigerian languages",
     "AI tutor",
+    "Nigeria AI",
+    "learning platform",
+    "Nigeria language learning website",
     "language learning app",
     "Yoruba",
     "Igbo",
@@ -78,18 +79,16 @@ export const metadata = {
     viewportFit: "cover",
   },
   verification: {
-    google: "YOUR_GOOGLE_SITE_VERIFICATION_ID",
+    google: "P5P5x2wkEiR6NpMhZX4GIK_hIvYmM_otP5VsKM8p0uA", // ✅ Your Google Site Verification ID
   },
 };
 
 export default function RootLayout({ children }) {
-  // ============================================
   // 🚧 Temporary Global Redirect to /waitlist
-  // ============================================
+  if (typeof window !== "undefined" && window.location.pathname !== "/waitlist") {
+    window.location.href = "/waitlist";
+  }
 
-  const waitlistMode = true; 
-   
- 
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
       <head />
