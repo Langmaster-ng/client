@@ -25,12 +25,10 @@ export function middleware(request) {
 
   // 2) Admin area: allow /admin/login, protect everything else with cookie
   if (pathname.startsWith("/admin")) {
-    // Allow the login page itself
     if (pathname.startsWith("/admin/login")) {
       return NextResponse.next();
     }
 
-    // Check auth cookie for all other /admin routes
     const token = request.cookies.get("lm_admin")?.value;
     if (!token) {
       const loginUrl = request.nextUrl.clone();
@@ -38,12 +36,11 @@ export function middleware(request) {
       loginUrl.searchParams.set("next", pathname);
       return NextResponse.redirect(loginUrl);
     }
-    // Authorized admin -> proceed
     return NextResponse.next();
   }
 
-  // 3) Allow the waitlist pages as-is
-  if (pathname.startsWith("/waitlist")) {
+  // 3) Allow the waitlist & linktree pages as-is
+  if (pathname.startsWith("/waitlist") || pathname.startsWith("/linktree")) {
     return NextResponse.next();
   }
 
@@ -54,10 +51,9 @@ export function middleware(request) {
 
 /**
  * Run the middleware on (almost) everything, except the usual static files.
- * NOTE: /waitlist is excluded from the matcher (so it loads freely).
  */
 export const config = {
   matcher: [
-    "/((?!_next|api|static|waitlist|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:png|jpg|jpeg|svg|webp|ico)).*)",
+    "/((?!_next|api|static|waitlist|linktree|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:png|jpg|jpeg|svg|webp|ico)).*)",
   ],
 };
