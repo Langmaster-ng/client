@@ -1,10 +1,10 @@
 export const dynamic = "force-dynamic";
 
-const UPSTREAM_BASE = process.env.ADMIN_API_BASE;
+const UPSTREAM_BASE = process.env.NEXT_PUBLIC_API_BASE;
 const UPSTREAM_PATH = "/v1/api/waitlist";
 
 function buildUpstreamUrl(reqUrl) {
-  if (!UPSTREAM_BASE) throw new Error("Missing ADMIN_API_BASE env var");
+  if (!UPSTREAM_BASE) throw new Error("Missing NEXT_PUBLIC_API_BASE env var");
   const inUrl = new URL(reqUrl);
   const outUrl = new URL(UPSTREAM_PATH, UPSTREAM_BASE);
   inUrl.searchParams.forEach((v, k) => outUrl.searchParams.set(k, v));
