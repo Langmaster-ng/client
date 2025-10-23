@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { RefreshCw, Download, Search, Mail, Filter } from "lucide-react";
+import { RefreshCw, Download, Search, Mail, Filter, Beaker } from "lucide-react";
 import EmailComposerModal from "@/components/admin/EmailComposerModal";
 
-/** Mock data  */
+/** MOCK fallback */
 const MOCK = Array.from({ length: 48 }).map((_, i) => {
   const day = (i % 12) + 1;
   return {
@@ -17,32 +17,113 @@ const MOCK = Array.from({ length: 48 }).map((_, i) => {
   };
 });
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+const DEBUG = process.env.NEXT_PUBLIC_DEBUG === "1";
+
 export default function WaitlistAdminPage() {
+  
   const [q, setQ] = useState("");
   const [source, setSource] = useState("All");
+
+  // Modal
   const [modal, setModal] = useState(false);
+
+  // Pagination
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
-  const pageSize = 10;
+  // Data + states
+  const [rows, setRows] = useState([]);
+  const [totalFromApi, setTotalFromApi] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+  const [usingMock, setUsingMock] = useState(false);
 
+  const buildUrl = useCallback(() => {
+    const url = new URL("/v1/api/waitlist", API_BASE);
+    url.searchParams.set("size", String(pageSize));
+    url.searchParams.set("page", String(page));
+    return url.toString();
+  }, [page, pageSize]);
+
+  function parseListAndTotal(json) {
+    // Accept many shapes:
+    // { data: { items, total } }, { items, total }, { rows, count }, [] plain
+    const root = json?.data ?? json?.payload ?? json?.result ?? json;
+
+    const list =
+      (Array.isArray(root?.items) && root.items) ||
+      (Array.isArray(root?.rows) && root.rows) ||
+      (Array.isArray(root?.results) && root.results) ||
+      (Array.isArray(root?.list) && root.list) ||
+      (Array.isArray(root) && root) ||
+      [];
+
+    const total =
+      (typeof root?.total === "number" && root.total) ||
+      (typeof root?.totalCount === "number" && root.totalCount) ||
+      (typeof root?.count === "number" && root.count) ||
+      (typeof json?.total === "number" && json.total) ||
+      (typeof json?.totalCount === "number" && json.totalCount) ||
+      null;
+
+    return { list, total };
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    async function run() {
+      setLoading(true);
+      setErr("");
+      setUsingMock(false);
+      try {
+        if (!API_BASE) throw new Error("Missing NEXT_PUBLIC_API_BASE");
+        const url = buildUrl();
+        const res = await fetch(url, { cache: "no-store" });
+        const json = await res.json().catch(() => ({}));
+        if (DEBUG) console.debug("[WAITLIST][GET]", url, json);
+        if (!res.ok) throw new Error(json?.message || `Request failed (${res.status})`);
+
+        const { list, total } = parseListAndTotal(json);
+        if (!cancelled) {
+          setRows(list);
+          setTotalFromApi(total ?? list.length ?? 0);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setErr(e.message || "Failed to load waitlist.");
+          // fallback: show mock page slice so UI remains usable
+          const start = (page - 1) * pageSize;
+          setRows(MOCK.slice(start, start + pageSize));
+          setTotalFromApi(MOCK.length);
+          setUsingMock(true);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    run();
+    return () => { cancelled = true; };
+  }, [buildUrl, page, pageSize]);
+
+  // client-side filter on the currently loaded page
   const filtered = useMemo(() => {
-    return MOCK.filter((r) => {
+    return rows.filter((r) => {
       const matchesQ =
         !q ||
-        r.email.toLowerCase().includes(q.toLowerCase()) ||
+        r.email?.toLowerCase().includes(q.toLowerCase()) ||
         (r.first_name || "").toLowerCase().includes(q.toLowerCase());
       const matchesSource = source === "All" || r.source === source;
       return matchesQ && matchesSource;
     });
-  }, [q, source]);
+  }, [rows, q, source]);
 
-  const total = filtered.length;
-  const totalAll = MOCK.length;
-  const totalToday = MOCK.slice(0, 100).filter((r) => r.created_at.startsWith("2025-10-18")).length; 
-  const total7d = 37; 
+  const totalAll = totalFromApi ?? rows.length;
+  const totalInView = filtered.length;
+  const totalToday = 0; // help me update when backend provides metric
+  const total7d = 0;
 
-  const pages = Math.max(1, Math.ceil(total / pageSize));
-  const rows = filtered.slice((page - 1) * pageSize, page * pageSize);
+  const pages = Math.max(1, Math.ceil((totalFromApi || totalInView || 1) / pageSize));
 
   function exportCSV() {
     const header = ["email", "first_name", "source", "created_at", "status"];
@@ -58,8 +139,27 @@ export default function WaitlistAdminPage() {
     URL.revokeObjectURL(url);
   }
 
+  function useDemoData() {
+    const start = (page - 1) * pageSize;
+    setRows(MOCK.slice(start, start + pageSize));
+    setTotalFromApi(MOCK.length);
+    setUsingMock(true);
+  }
+
   return (
     <div className="mx-auto max-w-6xl space-y-6">
+      {(usingMock || err) && (
+        <div className={`rounded-2xl border px-4 py-3 text-sm ${usingMock ? "border-amber-200 bg-amber-50 text-amber-800" : "border-rose-200 bg-rose-50 text-rose-800"}`}>
+          {usingMock ? "API unreachable — showing mock data." : err}
+          <button
+            onClick={useDemoData}
+            className="ml-3 inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs hover:bg-gray-50"
+          >
+            <Beaker size={14} /> Use demo data
+          </button>
+        </div>
+      )}
+
       {/* Actions */}
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
@@ -67,13 +167,22 @@ export default function WaitlistAdminPage() {
           <p className="text-sm text-gray-500">Track signups, export, and reach out to early adopters.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setModal(true)} className="inline-flex items-center gap-2 rounded-lg bg-[#22C55E] px-3 py-2 text-sm font-semibold text-white hover:brightness-95">
+          <button
+            onClick={() => setModal(true)}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#22C55E] px-3 py-2 text-sm font-semibold text-white hover:brightness-95"
+          >
             <Mail size={16} /> Compose Email
           </button>
-          <button onClick={exportCSV} className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm hover:bg-gray-50">
+          <button
+            onClick={exportCSV}
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm hover:bg-gray-50"
+          >
             <Download size={16} /> Export CSV
           </button>
-          <button onClick={() => window.location.reload()} className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm hover:bg-gray-50">
+          <button
+            onClick={() => setPage((p) => p)}
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm hover:bg-gray-50"
+          >
             <RefreshCw size={16} /> Refresh
           </button>
         </div>
@@ -81,10 +190,10 @@ export default function WaitlistAdminPage() {
 
       {/* KPI */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total Waitlist" value={totalAll.toLocaleString()} />
-        <StatCard label="In View (after filters)" value={total.toLocaleString()} />
-        <StatCard label="Added Today" value={totalToday.toLocaleString()} />
-        <StatCard label="Last 7 days" value={total7d.toLocaleString()} />
+        <StatCard label="Total Waitlist" value={Number(totalAll).toLocaleString()} />
+        <StatCard label="In View (after filters)" value={Number(totalInView).toLocaleString()} />
+        <StatCard label="Added Today" value={Number(totalToday).toLocaleString()} />
+        <StatCard label="Last 7 days" value={Number(total7d).toLocaleString()} />
       </div>
 
       {/* Filters */}
@@ -94,24 +203,38 @@ export default function WaitlistAdminPage() {
             <Search size={16} className="text-gray-500" />
             <input
               value={q}
-              onChange={(e) => { setPage(1); setQ(e.target.value); }}
+              onChange={(e) => setQ(e.target.value)}
               placeholder="Search by email or first name…"
               className="w-full text-sm outline-none"
             />
           </div>
+
           <div className="flex items-center gap-2">
             <div className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
               <Filter size={16} className="text-gray-500" />
               <select
                 className="outline-none"
                 value={source}
-                onChange={(e) => { setPage(1); setSource(e.target.value); }}
+                onChange={(e) => setSource(e.target.value)}
               >
                 <option>All</option>
                 <option>Landing</option>
                 <option>Referral</option>
                 <option>Social</option>
                 <option>Direct</option>
+              </select>
+            </div>
+
+            <div className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
+              <span className="text-gray-500">Rows</span>
+              <select
+                className="outline-none"
+                value={pageSize}
+                onChange={(e) => { setPage(1); setPageSize(Number(e.target.value)); }}
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
               </select>
             </div>
           </div>
@@ -130,20 +253,25 @@ export default function WaitlistAdminPage() {
               </tr>
             </thead>
             <tbody className="text-sm text-gray-800">
-              {rows.map((r, i) => (
-                <tr key={i} className="border-t border-gray-50 hover:bg-gray-50/60">
-                  <td className="px-4 py-3">{r.email}</td>
-                  <td className="px-4 py-3">{r.first_name}</td>
-                  <td className="px-4 py-3">
-                    <span className="rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px]">{r.source}</span>
-                  </td>
-                  <td className="px-4 py-3">{r.created_at}</td>
-                  <td className="px-4 py-3">
-                    <span className="rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-[11px] text-green-700">{r.status}</span>
-                  </td>
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="px-4 py-8 text-center text-gray-500">Loading…</td>
                 </tr>
-              ))}
-              {rows.length === 0 && (
+              ) : filtered.length > 0 ? (
+                filtered.map((r, i) => (
+                  <tr key={`${r.email}-${i}`} className="border-t border-gray-50 hover:bg-gray-50/60">
+                    <td className="px-4 py-3">{r.email}</td>
+                    <td className="px-4 py-3">{r.first_name}</td>
+                    <td className="px-4 py-3">
+                      <span className="rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px]">{r.source}</span>
+                    </td>
+                    <td className="px-4 py-3">{r.created_at}</td>
+                    <td className="px-4 py-3">
+                      <span className="rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-[11px] text-green-700">{r.status}</span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
                 <tr><td className="px-4 py-6 text-sm text-gray-500" colSpan={5}>No results.</td></tr>
               )}
             </tbody>
@@ -157,14 +285,14 @@ export default function WaitlistAdminPage() {
             <button
               className="rounded-lg border border-gray-200 px-3 py-1.5 hover:bg-gray-50 disabled:opacity-50"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
+              disabled={page === 1 || loading}
             >
               Prev
             </button>
             <button
               className="rounded-lg border border-gray-200 px-3 py-1.5 hover:bg-gray-50 disabled:opacity-50"
               onClick={() => setPage((p) => Math.min(pages, p + 1))}
-              disabled={page === pages}
+              disabled={page === pages || loading}
             >
               Next
             </button>
@@ -177,7 +305,6 @@ export default function WaitlistAdminPage() {
         open={modal}
         onClose={() => setModal(false)}
         onSend={(payload) => {
-          // For now, just log — later call your /send endpoint
           console.log("SEND EMAIL PAYLOAD:", payload);
         }}
       />
@@ -187,10 +314,7 @@ export default function WaitlistAdminPage() {
 
 function StatCard({ label, value }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border border-gray-100 bg-white p-4"
-    >
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-gray-100 bg-white p-4">
       <div className="text-xs text-gray-500">{label}</div>
       <div className="mt-1 text-xl font-bold text-gray-900">{value}</div>
     </motion.div>
