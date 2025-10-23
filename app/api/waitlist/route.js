@@ -1,4 +1,3 @@
-// app/api/waitlist/route.js
 export const dynamic = "force-dynamic";
 
 const UPSTREAM_BASE = process.env.ADMIN_API_BASE;
