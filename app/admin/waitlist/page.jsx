@@ -245,7 +245,6 @@ export default function WaitlistAdminPage() {
             <thead className="text-xs text-gray-500">
               <tr>
                 <th className="px-4 py-3">Email</th>
-                <th className="px-4 py-3">First name</th>
                 <th className="px-4 py-3">Source</th>
                 <th className="px-4 py-3">Joined</th>
                 <th className="px-4 py-3">Status</th>
@@ -260,7 +259,6 @@ export default function WaitlistAdminPage() {
                 filtered.map((r, i) => (
                   <tr key={`${r.email}-${i}`} className="border-t border-gray-50 hover:bg-gray-50/60">
                     <td className="px-4 py-3">{r.email}</td>
-                    <td className="px-4 py-3">{r.first_name}</td>
                     <td className="px-4 py-3">
                       <span className="rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px]">{r.source}</span>
                     </td>
