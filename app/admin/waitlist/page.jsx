@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { RefreshCw, Download, Search, Mail, Filter, Beaker } from "lucide-react";
 import EmailComposerModal from "@/components/admin/EmailComposerModal";
@@ -20,8 +20,69 @@ const MOCK = Array.from({ length: 48 }).map((_, i) => {
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 const DEBUG = process.env.NEXT_PUBLIC_DEBUG === "1";
 
+/** Parse many common backend shapes */
+function parseListAndTotal(json) {
+  const root = json?.data ?? json?.payload ?? json?.result ?? json;
+  const list =
+    (Array.isArray(root?.items) && root.items) ||
+    (Array.isArray(root?.rows) && root.rows) ||
+    (Array.isArray(root?.results) && root.results) ||
+    (Array.isArray(root?.list) && root.list) ||
+    (Array.isArray(root) && root) ||
+    [];
+  const total =
+    (typeof root?.total === "number" && root.total) ||
+    (typeof root?.totalCount === "number" && root.totalCount) ||
+    (typeof root?.count === "number" && root.count) ||
+    (typeof json?.total === "number" && json.total) ||
+    (typeof json?.totalCount === "number" && json.totalCount) ||
+    null;
+  return { list, total };
+}
+
+/** Try proxy first in production, then direct API_BASE in dev */
+async function fetchWaitlistPage({ page, size, isProd }) {
+  const candidates = [];
+
+  // 1) In production, prefer our Next.js proxy to avoid CORS entirely
+  if (isProd) {
+    candidates.push({ url: `/api/waitlist?size=${size}&page=${page}`, method: "GET" });
+  }
+
+  // 2) In dev (or as fallback), hit the backend directly if API_BASE is provided
+  if (API_BASE) {
+    const base = API_BASE.replace(/\/$/, "");
+    candidates.push(
+      { url: `${base}/v1/api/waitlist?size=${size}&page=${page}`, method: "GET" },
+      { url: `${base}/v1/api/waitlist/?size=${size}&page=${page}`, method: "GET" }, // trailing slash variant
+      { url: `${base}/api/v1/waitlist?size=${size}&page=${page}`, method: "GET" }
+    );
+  }
+
+  let lastError = null;
+
+  for (const c of candidates) {
+    try {
+      const res = await fetch(c.url, { cache: "no-store" });
+      const json = await res.json().catch(() => ({}));
+      if (DEBUG) console.debug("[WAITLIST][TRY]", c.method, c.url, res.status, json?.status);
+
+      if (res.ok && (json?.status === "success" || Array.isArray(json) || json?.data || json?.items || json?.rows)) {
+        const { list, total } = parseListAndTotal(json);
+        if (DEBUG) console.debug("[WAITLIST][OK]", { url: c.url, count: list.length, total });
+        return { list, total, used: c.url };
+      }
+
+      lastError = new Error(json?.message || `HTTP ${res.status}`);
+    } catch (e) {
+      lastError = e;
+    }
+  }
+
+  throw lastError || new Error("No compatible waitlist endpoint found.");
+}
+
 export default function WaitlistAdminPage() {
-  
   const [q, setQ] = useState("");
   const [source, setSource] = useState("All");
 
@@ -39,52 +100,15 @@ export default function WaitlistAdminPage() {
   const [err, setErr] = useState("");
   const [usingMock, setUsingMock] = useState(false);
 
-  const buildUrl = useCallback(() => {
-    const url = new URL("/v1/api/waitlist", API_BASE);
-    url.searchParams.set("size", String(pageSize));
-    url.searchParams.set("page", String(page));
-    return url.toString();
-  }, [page, pageSize]);
-
-  function parseListAndTotal(json) {
-    // Accept many shapes:
-    // { data: { items, total } }, { items, total }, { rows, count }, [] plain
-    const root = json?.data ?? json?.payload ?? json?.result ?? json;
-
-    const list =
-      (Array.isArray(root?.items) && root.items) ||
-      (Array.isArray(root?.rows) && root.rows) ||
-      (Array.isArray(root?.results) && root.results) ||
-      (Array.isArray(root?.list) && root.list) ||
-      (Array.isArray(root) && root) ||
-      [];
-
-    const total =
-      (typeof root?.total === "number" && root.total) ||
-      (typeof root?.totalCount === "number" && root.totalCount) ||
-      (typeof root?.count === "number" && root.count) ||
-      (typeof json?.total === "number" && json.total) ||
-      (typeof json?.totalCount === "number" && json.totalCount) ||
-      null;
-
-    return { list, total };
-  }
-
   useEffect(() => {
     let cancelled = false;
-    async function run() {
+    (async () => {
       setLoading(true);
       setErr("");
       setUsingMock(false);
       try {
-        if (!API_BASE) throw new Error("Missing NEXT_PUBLIC_API_BASE");
-        const url = buildUrl();
-        const res = await fetch(url, { cache: "no-store" });
-        const json = await res.json().catch(() => ({}));
-        if (DEBUG) console.debug("[WAITLIST][GET]", url, json);
-        if (!res.ok) throw new Error(json?.message || `Request failed (${res.status})`);
-
-        const { list, total } = parseListAndTotal(json);
+        const isProd = typeof window !== "undefined" && window.location.hostname !== "localhost";
+        const { list, total } = await fetchWaitlistPage({ page, size: pageSize, isProd });
         if (!cancelled) {
           setRows(list);
           setTotalFromApi(total ?? list.length ?? 0);
@@ -92,7 +116,7 @@ export default function WaitlistAdminPage() {
       } catch (e) {
         if (!cancelled) {
           setErr(e.message || "Failed to load waitlist.");
-          // fallback: show mock page slice so UI remains usable
+          // graceful mock fallback to keep UI usable
           const start = (page - 1) * pageSize;
           setRows(MOCK.slice(start, start + pageSize));
           setTotalFromApi(MOCK.length);
@@ -101,10 +125,11 @@ export default function WaitlistAdminPage() {
       } finally {
         if (!cancelled) setLoading(false);
       }
-    }
-    run();
-    return () => { cancelled = true; };
-  }, [buildUrl, page, pageSize]);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [page, pageSize]);
 
   // client-side filter on the currently loaded page
   const filtered = useMemo(() => {
@@ -120,7 +145,7 @@ export default function WaitlistAdminPage() {
 
   const totalAll = totalFromApi ?? rows.length;
   const totalInView = filtered.length;
-  const totalToday = 0; // help me update when backend provides metric
+  const totalToday = 0; // update when backend provides metric
   const total7d = 0;
 
   const pages = Math.max(1, Math.ceil((totalFromApi || totalInView || 1) / pageSize));
@@ -149,7 +174,11 @@ export default function WaitlistAdminPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       {(usingMock || err) && (
-        <div className={`rounded-2xl border px-4 py-3 text-sm ${usingMock ? "border-amber-200 bg-amber-50 text-amber-800" : "border-rose-200 bg-rose-50 text-rose-800"}`}>
+        <div
+          className={`rounded-2xl border px-4 py-3 text-sm ${
+            usingMock ? "border-amber-200 bg-amber-50 text-amber-800" : "border-rose-200 bg-rose-50 text-rose-800"
+          }`}
+        >
           {usingMock ? "API unreachable — showing mock data." : err}
           <button
             onClick={useDemoData}
@@ -212,11 +241,7 @@ export default function WaitlistAdminPage() {
           <div className="flex items-center gap-2">
             <div className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
               <Filter size={16} className="text-gray-500" />
-              <select
-                className="outline-none"
-                value={source}
-                onChange={(e) => setSource(e.target.value)}
-              >
+              <select className="outline-none" value={source} onChange={(e) => setSource(e.target.value)}>
                 <option>All</option>
                 <option>Landing</option>
                 <option>Referral</option>
@@ -230,7 +255,10 @@ export default function WaitlistAdminPage() {
               <select
                 className="outline-none"
                 value={pageSize}
-                onChange={(e) => { setPage(1); setPageSize(Number(e.target.value)); }}
+                onChange={(e) => {
+                  setPage(1);
+                  setPageSize(Number(e.target.value));
+                }}
               >
                 <option value={10}>10</option>
                 <option value={25}>25</option>
@@ -255,7 +283,9 @@ export default function WaitlistAdminPage() {
             <tbody className="text-sm text-gray-800">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-gray-500">Loading…</td>
+                  <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                    Loading…
+                  </td>
                 </tr>
               ) : filtered.length > 0 ? (
                 filtered.map((r, i) => (
@@ -263,16 +293,24 @@ export default function WaitlistAdminPage() {
                     <td className="px-4 py-3">{r.email}</td>
                     <td className="px-4 py-3">{r.first_name}</td>
                     <td className="px-4 py-3">
-                      <span className="rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px]">{r.source}</span>
+                      <span className="rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px]">
+                        {r.source}
+                      </span>
                     </td>
                     <td className="px-4 py-3">{r.created_at}</td>
                     <td className="px-4 py-3">
-                      <span className="rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-[11px] text-green-700">{r.status}</span>
+                      <span className="rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-[11px] text-green-700">
+                        {r.status}
+                      </span>
                     </td>
                   </tr>
                 ))
               ) : (
-                <tr><td className="px-4 py-6 text-sm text-gray-500" colSpan={5}>No results.</td></tr>
+                <tr>
+                  <td className="px-4 py-6 text-sm text-gray-500" colSpan={5}>
+                    No results.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
@@ -280,7 +318,9 @@ export default function WaitlistAdminPage() {
 
         {/* Pagination */}
         <div className="mt-4 flex items-center justify-between text-sm">
-          <div className="text-gray-500">Page {page} of {pages}</div>
+          <div className="text-gray-500">
+            Page {page} of {pages}
+          </div>
           <div className="flex items-center gap-2">
             <button
               className="rounded-lg border border-gray-200 px-3 py-1.5 hover:bg-gray-50 disabled:opacity-50"
