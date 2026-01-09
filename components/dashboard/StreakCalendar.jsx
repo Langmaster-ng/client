@@ -12,11 +12,11 @@ export default function StreakCalendar() {
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
 
-  // Mock streak days for demo, to be later fetched from user data
+
   const streakDays = [1, 2, 3, 4, 5, 6, 7, 10, 11, 13, 14, 15, 16, 17, 18];
 
   const days = [];
-  for (let i = 0; i < firstDayOfMonth; i++) days.push(null); // Empty slots before month start
+  for (let i = 0; i < firstDayOfMonth; i++) days.push(null); 
   for (let i = 1; i <= daysInMonth; i++) days.push(i);
 
   const monthName = now.toLocaleString("default", { month: "long" });
@@ -58,7 +58,7 @@ export default function StreakCalendar() {
             >
               {day}
 
-              {/* Fire Glow for Streak Days */}
+            
               {streakDays.includes(day) && (
                 <motion.div
                   className="absolute -top-2 right-1"
@@ -74,7 +74,7 @@ export default function StreakCalendar() {
                 </motion.div>
               )}
 
-              {/* Glow pulse on today */}
+            
               {day === today && (
                 <motion.div
                   className="absolute inset-0 rounded-xl bg-green-500/20"

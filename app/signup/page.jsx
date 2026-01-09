@@ -8,8 +8,7 @@ import AuthNavbar from '@/components/AuthNavbar';
 import AuthFooter from '@/components/AuthFooter';
 import toast, { Toaster } from 'react-hot-toast';
 import { CheckCircle2, AlertTriangle, Info, Loader2 } from 'lucide-react';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://lang-learn-app-app-production.up.railway.app';
+import { apiClient } from "@/lib/api/apiClient";
 
 const languages = [
   { id: 'yoruba', name: 'Yoruba', region: 'Southwestern Nigeria', speakers: '30+ million', flag: '🇳🇬' },
@@ -23,7 +22,7 @@ const proficiencyLevels = [
   { id: 'advanced',     title: 'Advanced',     desc: 'Comfortable with complex conversations' },
 ];
 
-/* ---------------- toast ---------------- */
+
 function toastCard({ tone = 'info', title, message }) {
   const tones = {
     success: {
@@ -107,7 +106,7 @@ function validateFields({ fullName, username, email, password, language, profici
 
 export default function SignupPage() {
   const router = useRouter();
-
+  
   // Controlled form fields
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
@@ -151,23 +150,27 @@ export default function SignupPage() {
   };
 
   async function handleSubmit(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const err = validateFields({
-      fullName,
-      username,
-      email,
-      password,
-      language: selectedLanguage,
-      proficiency: selectedProficiency,
-      agree,
-    });
+  const err = validateFields({
+    fullName,
+    username,
+    email,
+    password,
+    language: selectedLanguage,
+    proficiency: selectedProficiency,
+    agree,
+  });
 
-    if (err) {
-      errorToast('Fix required', err);
-      return;
-    }
+  if (err) {
+    errorToast('Fix required', err);
+    return;
+  }
 
+  try {
+    setLoading(true);
+
+    // 🔑 IMPORTANT: match backend keys EXACTLY
     const payload = {
       email,
       password,
@@ -178,29 +181,28 @@ export default function SignupPage() {
       agree_to_terms: true,
     };
 
-    try {
-      setLoading(true);
-      const res = await fetch(`${API_BASE}/v1/api/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+    const result = await apiClient("/register", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
 
-      const data = await res.json().catch(() => ({}));
+    // ✅ success
+    successToast(
+      "Welcome to LangMaster!",
+      result.message || "User registered successfully."
+    );
 
-      if (!res.ok) {
-        const message = data?.message || `Signup failed (status ${res.status}).`;
-        throw new Error(message);
-      }
+    // ✅ redirect after UX pause
+    setTimeout(() => {
+      router.push("/login");
+    }, 1000);
 
-      successToast('Welcome to LangMaster!', data?.message || 'User registered successfully.');
-      setTimeout(() => router.push('/login'), 900);
-    } catch (err) {
-      errorToast('Signup error', err.message || 'Please try again.');
-    } finally {
-      setLoading(false);
-    }
+  } catch (err) {
+    errorToast("Signup error", err.message || "Please try again.");
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <div className="flex flex-col min-h-screen bg-amber-50">

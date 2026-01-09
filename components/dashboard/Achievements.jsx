@@ -55,7 +55,7 @@ export default function Achievements() {
         </button>
       </div>
 
-      {/* Achievement cards */}
+    
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {achievements.map((ach, idx) => (
           <motion.div
@@ -70,7 +70,7 @@ export default function Achievements() {
                 : "border-gray-100 bg-white text-gray-800"
             }`}
           >
-            {/* Crown for active card */}
+          
             {ach.active && (
               <div className="absolute right-4 top-4">
                 <Crown className="text-yellow-300" size={22} />

@@ -74,7 +74,7 @@ export default function ProgressOverview() {
               {stat.value}
             </motion.p>
 
-            {/* Glow animation */}
+           
             <motion.div
               className="absolute inset-0 bg-gradient-to-r from-green-400/10 to-transparent rounded-2xl pointer-events-none"
               animate={{

@@ -1,99 +1,132 @@
 "use client";
 
-import { Users, BookOpen, Trophy, ShieldAlert, Cpu, Wifi, Database } from "lucide-react";
-import KPICard from "@/components/admin/KPICard";
-import Sparkline from "@/components/admin/Sparkline";
-import RecentTable from "@/components/admin/RecentTable";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { ShieldCheck, Eye, EyeOff, Loader2 } from "lucide-react";
+import AdminLogo from "@/components/admin/AdminLogo";
+import { setAdminCookie, getNextParam } from "@/lib/adminAuth";
 
-export default function AdminHome() {
-  const stats = {
-    users: { value: "12,384", trend: { value: 8, label: "vs last 7d" }, spark: [2,3,3,4,5,6,8,9] },
-    lessons: { value: "186", trend: { value: 3, label: "vs last 7d" }, spark: [1,2,2,3,3,4,4,5] },
-    xp: { value: "1.4M", trend: { value: 12, label: "earned 7d" }, spark: [10,12,9,14,16,18,16,20] },
-    reports: { value: "5 open", trend: { value: -29, label: "down" }, spark: [7,6,5,6,5,4,5,5] },
-  };
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
-  const recentUsers = [
-    { name: "Ada Obi", email: "ada@example.com", lang: "Igbo", level: "Beginner", joined: "2025-10-14" },
-    { name: "Kehinde A.", email: "kehinde@example.com", lang: "Yorùbá", level: "Intermediate", joined: "2025-10-13" },
-    { name: "Umar S.", email: "umar@example.com", lang: "Hausa", level: "Beginner", joined: "2025-10-12" },
-  ];
-  const openReports = [
-    { id: "#RPT-1205", user: "newbie19", reason: "Spam link", status: "Open", created: "2025-10-15" },
-    { id: "#RPT-1204", user: "edu_mentor", reason: "Harassment", status: "Reviewing", created: "2025-10-14" },
-  ];
+export default function AdminLoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+
+  const ENDPOINT = `${API_BASE}/v1/api/admin/login`;
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    setErr("");
+
+    if (!API_BASE) {
+      setErr("Missing NEXT_PUBLIC_API_BASE — set this in Vercel!");
+      return;
+    }
+
+    if (!email || !password) {
+      setErr("Email and password are required.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (_) {
+        throw new Error("Invalid JSON response from server");
+      }
+
+      if (!res.ok || data.status !== "success") {
+        throw new Error(data.message || "Invalid credentials");
+      }
+
+      // store token
+      const token = data.jwt || data.token;
+      if (!token) throw new Error("Token missing in API response");
+
+      setAdminCookie(token);
+      window.location.href = getNextParam("/admin");
+
+    } catch (e) {
+      setErr(e.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KPICard icon={<Users size={16} />} label="Total Learners" value={stats.users.value} trend={stats.users.trend} spark={<Sparkline points={stats.users.spark} />} />
-        <KPICard icon={<BookOpen size={16} />} label="Lessons Published" value={stats.lessons.value} trend={stats.lessons.trend} spark={<Sparkline points={stats.lessons.spark} />} />
-        <KPICard icon={<Trophy size={16} />} label="XP Earned (7d)" value={stats.xp.value} trend={stats.xp.trend} spark={<Sparkline points={stats.xp.spark} />} />
-        <KPICard icon={<ShieldAlert size={16} />} label="Open Reports" value={stats.reports.value} trend={stats.reports.trend} spark={<Sparkline points={stats.reports.spark} />} />
-      </section>
+    <div className="mx-auto grid min-h-screen w-full max-w-6xl grid-cols-1 overflow-hidden md:grid-cols-2">
+      <div className="flex flex-col justify-between p-6 md:p-10 bg-gray-50">
+        <AdminLogo />
 
-      <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
-          <RecentTable
-            title="Recent Users"
-            columns={[
-              { key: "name", header: "Name" },
-              { key: "email", header: "Email" },
-              { key: "lang", header: "Language" },
-              { key: "level", header: "Level" },
-              { key: "joined", header: "Joined" },
-            ]}
-            rows={recentUsers}
-          />
-          <RecentTable
-            title="Open Reports"
-            columns={[
-              { key: "id", header: "ID" },
-              { key: "user", header: "User" },
-              { key: "reason", header: "Reason" },
-              { key: "status", header: "Status",
-                render: (v) => (
-                  <span className={`rounded-full px-2 py-1 text-[11px] font-medium ${
-                    v === "Open" ? "bg-rose-50 text-rose-700 border border-rose-200" : "bg-amber-50 text-amber-700 border border-amber-200"
-                  }`}>{v}</span>
-                )
-              },
-              { key: "created", header: "Created" },
-            ]}
-            rows={openReports}
-          />
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-auto w-full max-w-md rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
+        >
+          <h1 className="text-2xl font-bold">Sign in to Admin</h1>
 
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-gray-100 bg-white p-4">
-            <h3 className="text-sm font-semibold text-gray-900">System Health</h3>
-            <div className="mt-3 space-y-3">
-              <HealthRow label="API Latency" value="112ms" good />
-              <HealthRow label="Realtime Socket" value="Connected" good />
-              <HealthRow label="DB Replication" value="Lag 43ms" good />
+          <form onSubmit={onSubmit} className="space-y-4 mt-4">
+            {/* email */}
+            <input
+              type="email"
+              className="w-full rounded-lg border px-3 py-2"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@example.com"
+            />
+
+            {/* password */}
+            <div className="flex items-center rounded-lg border px-3">
+              <input
+                type={show ? "text" : "password"}
+                className="w-full py-2"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button type="button" onClick={() => setShow((s) => !s)}>
+                {show ? <EyeOff /> : <Eye />}
+              </button>
             </div>
-          </div>
-          <div className="rounded-2xl border border-gray-100 bg-white p-4">
-            <h3 className="text-sm font-semibold text-gray-900">Quick Actions</h3>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <button className="rounded-lg border border-gray-200 px-3 py-2 text-sm hover:bg-gray-50">New Lesson</button>
-              <button className="rounded-lg border border-gray-200 px-3 py-2 text-sm hover:bg-gray-50">Invite Tutor</button>
-              <button className="rounded-lg border border-gray-200 px-3 py-2 text-sm hover:bg-gray-50">Create Event</button>
-              <button className="rounded-lg border border-gray-200 px-3 py-2 text-sm hover:bg-gray-50">Review Reports</button>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-}
 
-function HealthRow({ label, value, good }) {
-  return (
-    <div className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
-      <div className={`flex h-6 w-6 items-center justify-center rounded-md ${good ? "bg-[#22C55E]/10 text-[#22C55E]" : "bg-rose-50 text-rose-600"}`} />
-      <div className="flex-1 pl-2 text-sm text-gray-700">{label}</div>
-      <div className="text-sm font-medium text-gray-900">{value}</div>
+            {err && (
+              <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+                {err}
+              </div>
+            )}
+
+            <button
+              className="w-full rounded-lg bg-[#22C55E] text-white py-2.5 flex items-center justify-center gap-2"
+              disabled={loading}
+            >
+              {loading ? <Loader2 className="animate-spin" /> : <ShieldCheck />}
+              {loading ? "Verifying…" : "Sign In"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setAdminCookie("dev-bypass-token");
+                window.location.href = "/admin";
+              }}
+              className="w-full border mt-2 py-2 rounded-lg"
+            >
+              Skip auth (Dev)
+            </button>
+          </form>
+        </motion.div>
+      </div>
     </div>
   );
 }

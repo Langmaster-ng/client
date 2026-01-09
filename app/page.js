@@ -1,6 +1,9 @@
 import Head from "next/head";
 import LandingNavbar from "@/components/LandingNavbar";
+import WaitlistNav from "@/components/WaitlistNav";
 import LandingHero from "@/components/LandingHero";
+import WaitlistHero from "/components/WaitlistHero";
+import Mission from "/components/Mission";
 import LandingLanguageCards from "@/components/LandingLanguageCards";
 import LanguageAndHowItWorks from "@/components/LanguageAndHowItWorks";
 import Testimonials from "@/components/Testimonials";
@@ -26,13 +29,11 @@ export default function Home() {
         <meta property="og:image" content="/logo.png" />
       </Head>
        <FollowModal />
-      <LandingNavbar />
-      <LandingHero />
-      <LanguageAndHowItWorks />
+      <WaitlistNav />
+       <WaitlistHero />
+     <Mission />
        <Features />
        <Testimonials />
-
-          <Pricing />
             <CTA />
             <MoreThanWords />
       <LandingFooter />

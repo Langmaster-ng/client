@@ -15,18 +15,18 @@ import { Sparkles } from "lucide-react";
 export default function RewardsPage() {
   return (
     <main className="relative min-h-screen">
-      {/* Side + Navbars */}
+     
       <Sidebar active="Streak & Rewards" />
       <TopNavbar title="Rewards & Progress" />
       
-      {/* Page Body */}
+ 
       <motion.section
         initial={{ opacity: 0, y: 25 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="md:ml-64 bg-gray-50 min-h-screen px-4 pb-24 pt-16 md:px-10 md:pt-10 space-y-10"
       >
-        {/* Page Header */}
+     
         <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
             <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">
@@ -42,19 +42,19 @@ export default function RewardsPage() {
           </div>
         </header>
 
-        {/*  Account Level */}
+
         <AccountLevel />
 
-        {/* Streak Calendar +  Leaderboard */}
+    
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <StreakCalendar />
           <Leaderboard />
         </section>
 
-        {/*  Daily Spin Button */}
+      
         <RewardSpin />
 
-        {/* Achievements */}
+    
         <Achievements />
       </motion.section>
 

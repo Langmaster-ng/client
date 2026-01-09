@@ -72,7 +72,7 @@ export default function HeroEvent({ title, subtitle, badges = [], startAt, cta, 
           </div>
         </div>
 
-        {/* Character panel */}
+        
         <motion.div
           initial={{ opacity: 0, x: 12 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -89,7 +89,7 @@ export default function HeroEvent({ title, subtitle, badges = [], startAt, cta, 
               className="object-contain"
             />
           )}
-          {/* subtle glow */}
+        
           <span className="absolute inset-0 rounded-2xl pointer-events-none shadow-[0_0_40px_rgba(34,197,94,0.12)]" />
         </motion.div>
       </div>

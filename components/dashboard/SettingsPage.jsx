@@ -14,7 +14,7 @@ export default function SettingsPage() {
 
   return (
     <section className="md:ml-64 px-4 md:px-10 pt-6 md:pt-10 pb-24 bg-gray-50 min-h-screen">
-      {/* Header */}
+   
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">
           Settings & Profile 
@@ -24,7 +24,7 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      {/* Profile Information */}
+     
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -37,7 +37,7 @@ export default function SettingsPage() {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Full Name */}
+         
           <div>
             <label className="text-sm text-gray-500">Full Name</label>
             <input
@@ -48,7 +48,7 @@ export default function SettingsPage() {
             />
           </div>
 
-          {/* Username */}
+       
           <div>
             <label className="text-sm text-gray-500">Username</label>
             <input
@@ -59,7 +59,7 @@ export default function SettingsPage() {
             />
           </div>
 
-          {/* Gender */}
+       
           <div>
             <label className="text-sm text-gray-500">Gender</label>
             <select
@@ -72,7 +72,7 @@ export default function SettingsPage() {
             </select>
           </div>
 
-          {/* Account Visibility */}
+        
           <div>
             <label className="text-sm text-gray-500">Account Visibility</label>
             <select
@@ -84,7 +84,7 @@ export default function SettingsPage() {
             </select>
           </div>
 
-          {/* Privacy Level */}
+        
           <div>
             <label className="text-sm text-gray-500">Privacy Level</label>
             <select
@@ -97,7 +97,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Edit Profile Row */}
+      
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-semibold text-lg">
@@ -119,7 +119,7 @@ export default function SettingsPage() {
         </div>
       </motion.div>
 
-      {/* Theme Settings */}
+   
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -147,7 +147,7 @@ export default function SettingsPage() {
         </div>
       </motion.div>
 
-      {/* Notification Settings */}
+     
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

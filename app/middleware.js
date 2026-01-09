@@ -7,7 +7,7 @@ export function middleware(request) {
   const url = request.nextUrl.clone();
   const { pathname } = url;
 
-  // 1) Allow internal/static assets early
+
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||

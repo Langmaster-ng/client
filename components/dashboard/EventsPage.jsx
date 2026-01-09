@@ -31,7 +31,7 @@ const CULTURAL_MOMENTS = [
     description:
       "On January 9, 1970, Lt. Col. Odumegwu Ojukwu handed over power to Major General Effiong, marking the end of the Biafran War.",
     image: "https://upload.wikimedia.org/wikipedia/commons/4/4f/Ojukwu_1967.jpg",
-    location: [6.5244, 3.3792], // Lagos (sample)
+    location: [6.5244, 3.3792], 
   },
   {
     date: "1967-01-05",
@@ -40,7 +40,7 @@ const CULTURAL_MOMENTS = [
     description:
       "The Aburi Conference in Ghana emphasized regional autonomy and dialogue to avoid war.",
     image: "https://upload.wikimedia.org/wikipedia/commons/1/1e/Aburi_Conference.jpg",
-    location: [5.9348, -0.1841], // Aburi, Ghana
+    location: [5.9348, -0.1841], 
   },
   {
     date: "1804-02-21",
@@ -49,11 +49,11 @@ const CULTURAL_MOMENTS = [
     description:
       "Usman dan Fodio declared a jihad that founded the Sokoto Caliphate, reshaping Northern Nigeria’s history.",
     image: "https://upload.wikimedia.org/wikipedia/commons/9/90/Usman_dan_Fodio.jpg",
-    location: [13.0667, 5.2333], // Sokoto
+    location: [13.0667, 5.2333], 
   },
 ];
 
-/* Event Data */
+
 const ALL_EVENTS = [
   {
     id: "ev1",
@@ -102,7 +102,7 @@ const ALL_EVENTS = [
   },
 ];
 
-/* Cultural Quotes (daily rotation) */
+
 const CULTURAL_QUOTES = {
   Igbo: [
     {
@@ -128,7 +128,7 @@ const CULTURAL_QUOTES = {
   ],
 };
 
-/* Daily “Did You Know?” Popup */
+
 function DailyPopup() {
   const [show, setShow] = useState(false);
   const [fact, setFact] = useState(null);
@@ -172,7 +172,7 @@ function DailyPopup() {
   );
 }
 
-/* Quote of the Day */
+
 function QuoteOfTheDay({ language }) {
   const [quote, setQuote] = useState(null);
   useEffect(() => {
@@ -200,7 +200,7 @@ function QuoteOfTheDay({ language }) {
   );
 }
 
-/* Heritage Timeline */
+
 function HeritageTimeline({ onSelectMoment }) {
   return (
     <div className="mt-8">
@@ -231,7 +231,7 @@ function HeritageTimeline({ onSelectMoment }) {
   );
 }
 
-/* Event Card */
+
 function EventCard({ ev, onSelect }) {
   const filled = Math.round((ev.rsvp / ev.capacity) * 100);
   return (
@@ -262,7 +262,7 @@ function EventCard({ ev, onSelect }) {
           </p>
         </div>
 
-        {/* Tags */}
+
         <div className="flex flex-wrap gap-2">
           {ev.tags.map((t) => (
             <span key={t} className="rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-700">
@@ -279,7 +279,7 @@ function EventCard({ ev, onSelect }) {
   );
 }
 
-/* Cultural Moments Sidebar */
+
 function CulturalMomentsPanel({ language, onSelectMoment }) {
   const filtered = CULTURAL_MOMENTS.filter((m) => m.language.toLowerCase() === language.toLowerCase());
   return (
@@ -305,7 +305,7 @@ function CulturalMomentsPanel({ language, onSelectMoment }) {
   );
 }
 
-/* Cultural Moment Modal (with Map) */
+
 function MomentModal({ moment, onClose }) {
   return (
     <AnimatePresence>
@@ -336,7 +336,7 @@ function MomentModal({ moment, onClose }) {
   );
 }
 
-/* Main Events & Heritage Component */
+
 export default function EventsAndHeritage() {
   const [query, setQuery] = useState("");
   const [type, setType] = useState("All");
@@ -367,17 +367,17 @@ export default function EventsAndHeritage() {
         <p className="mt-1 text-gray-500">Join cultural experiences and rediscover our shared history.</p>
       </div>
 
-      {/* Quote of the Day */}
+
       <QuoteOfTheDay language={activeLang} />
 
-      {/* Heritage Timeline */}
+    
       <HeritageTimeline onSelectMoment={setSelectedMoment} />
 
-      {/* Events + Sidebar */}
+     
       <div className="mt-8 lg:flex lg:gap-6">
-        {/* Left: Events */}
+      
         <div className="flex-1">
-          {/* Filters */}
+        
           <div className="mb-6 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-2 text-sm text-gray-700">
@@ -414,7 +414,7 @@ export default function EventsAndHeritage() {
             </div>
           </div>
 
-          {/* Events Grid */}
+        
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {filtered.map((ev) => (
               <EventCard key={ev.id} ev={ev} onSelect={setSelectedEvent} />
@@ -422,14 +422,14 @@ export default function EventsAndHeritage() {
           </div>
         </div>
 
-        {/* Right: Cultural Moments Sidebar */}
+    
         <CulturalMomentsPanel language={activeLang} onSelectMoment={setSelectedMoment} />
       </div>
 
-      {/* Modals */}
+     
       <MomentModal moment={selectedMoment} onClose={() => setSelectedMoment(null)} />
 
-      {/* RSVP Modal */}
+     
       <AnimatePresence>
         {selectedEvent && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">

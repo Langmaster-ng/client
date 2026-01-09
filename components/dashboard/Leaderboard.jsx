@@ -117,7 +117,7 @@ export default function Leaderboard() {
               </div>
             </div>
 
-            {/* Right side */}
+          
             <div className="flex items-center gap-3 relative z-10">
               <motion.div
                 initial={{ width: 0 }}

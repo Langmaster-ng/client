@@ -30,7 +30,7 @@ const levels = [
 export default function LearningLevels() {
   return (
     <section className="md:ml-64 px-4 md:px-8 pt-4 md:pt-8 pb-24 bg-[#F8FAFC] min-h-screen">
-      {/* Header style */}
+    
       <div className="mb-6">
         <p className="text-sm text-gray-500 cursor-pointer">&lt; Back</p>
         <h1 className="mt-2 text-2xl md:text-3xl font-extrabold text-gray-900">Learning Levels</h1>
@@ -56,14 +56,14 @@ export default function LearningLevels() {
                 : "border-gray-100 bg-white text-gray-800"
             }`}
           >
-            {/* Badge / Crown for active */}
+       
             {lv.active && (
               <div className="absolute right-4 top-4">
                 <Crown className="text-yellow-300" size={22} />
               </div>
             )}
 
-            {/* Decorative corner blob for inactive to mimic Cowrywise subtle illustration */}
+            
             {!lv.active && (
               <div className="pointer-events-none absolute -right-8 bottom-0 h-40 w-40 rounded-full bg-gray-100" />
             )}

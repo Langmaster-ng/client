@@ -4,7 +4,7 @@ export function middleware(request) {
   const url = request.nextUrl.clone();
   const { pathname } = url;
 
-  // 1) Allow internal/static assets early
+  // 1️⃣ Allow internal & static assets
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
@@ -13,22 +13,19 @@ export function middleware(request) {
     pathname.startsWith("/robots") ||
     pathname.startsWith("/sitemap") ||
     pathname.startsWith("/images") ||
-    pathname.endsWith(".png") ||
-    pathname.endsWith(".jpg") ||
-    pathname.endsWith(".jpeg") ||
-    pathname.endsWith(".svg") ||
-    pathname.endsWith(".webp") ||
-    pathname.endsWith(".ico")
+    pathname.match(/\.(png|jpg|jpeg|svg|webp|ico)$/)
   ) {
     return NextResponse.next();
   }
 
-  // 2) Admin area: allow /admin/login, protect everything else with cookie
+  // 2️⃣ Admin routes protection
   if (pathname.startsWith("/admin")) {
+    // Allow admin login page
     if (pathname.startsWith("/admin/login")) {
       return NextResponse.next();
     }
 
+    // Protect other admin pages
     const token = request.cookies.get("lm_admin")?.value;
     if (!token) {
       const loginUrl = request.nextUrl.clone();
@@ -36,24 +33,20 @@ export function middleware(request) {
       loginUrl.searchParams.set("next", pathname);
       return NextResponse.redirect(loginUrl);
     }
+
     return NextResponse.next();
   }
 
-  // 3) Allow the waitlist & linktree pages as-is
-  if (pathname.startsWith("/waitlist") || pathname.startsWith("/linktree")) {
-    return NextResponse.next();
-  }
-
-  // 4) Redirect everything else to /waitlist
-  url.pathname = "/waitlist";
-  return NextResponse.redirect(url);
+  // 3️⃣ Public pages (allowed freely)
+  // waitlist, linktree, landing, learners, lessons, dashboard, etc.
+  return NextResponse.next();
 }
 
 /**
- * Run the middleware on (almost) everything, except the usual static files.
+ * Apply middleware broadly, but exclude static filesh
  */
 export const config = {
   matcher: [
-    "/((?!_next|api|static|waitlist|linktree|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:png|jpg|jpeg|svg|webp|ico)).*)",
+    "/((?!_next|api|static|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:png|jpg|jpeg|svg|webp|ico)).*)",
   ],
 };

@@ -72,7 +72,7 @@ export default function UpcomingEventsWidget() {
                   </div>
                 </div>
 
-                {/* RSVP progress */}
+             
                 <div className="mt-3">
                   <div className="h-1.5 w-full rounded-full bg-gray-100">
                     <div className="h-1.5 rounded-full bg-green-500" style={{ width: `${filled}%` }} />

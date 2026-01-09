@@ -36,9 +36,9 @@ export default function AIChatWidget() {
 
   return (
     <>
-      {/* Floating Buttons */}
+   
       <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
-        {/* Practice Chat Button with Glow - i will use our logo later on*/}
+    
         <motion.button
           onClick={() => setIsChatOpen(true)}
           whileTap={{ scale: 0.95 }}
@@ -47,7 +47,7 @@ export default function AIChatWidget() {
           <MessageCircle size={20} />
           <span>LangMaster Chat</span>
 
-          {/* Glowing Animation */}
+       
           <motion.div
             className="absolute inset-0 rounded-full bg-green-400/50 blur-md"
             animate={{
@@ -62,7 +62,7 @@ export default function AIChatWidget() {
           />
         </motion.button>
 
-        {/* Claim Reward Button */}
+     
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.97 }}
@@ -74,7 +74,7 @@ export default function AIChatWidget() {
         </motion.button>
       </div>
 
-      {/* Chat Modal */}
+   
       <AnimatePresence>
         {isChatOpen && (
           <motion.div
@@ -90,7 +90,7 @@ export default function AIChatWidget() {
               transition={{ duration: 0.3 }}
               className="relative w-full sm:w-[400px] h-[500px] sm:h-[550px] bg-white rounded-2xl shadow-2xl flex flex-col border border-gray-100 overflow-hidden"
             >
-              {/* Header */}
+    
               <div className="flex items-center justify-between px-5 py-3 border-b bg-green-500 text-white">
                 <div className="flex items-center gap-2">
                   <Bot size={20} />
@@ -104,7 +104,7 @@ export default function AIChatWidget() {
                 </button>
               </div>
 
-              {/* Messages */}
+             
               <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50 space-y-3">
                 {messages.map((msg, idx) => (
                   <motion.div
@@ -137,7 +137,7 @@ export default function AIChatWidget() {
                 )}
               </div>
 
-              {/* Input */}
+       
               <div className="p-3 border-t bg-white flex items-center gap-2">
                 <input
                   type="text"
@@ -166,7 +166,7 @@ export default function AIChatWidget() {
         )}
       </AnimatePresence>
 
-      {/* Reward Modal */}
+     
       <AnimatePresence>
         {isRewardOpen && (
           <motion.div
@@ -182,7 +182,7 @@ export default function AIChatWidget() {
               transition={{ duration: 0.3 }}
               className="relative bg-white rounded-2xl p-8 w-[90%] max-w-md shadow-xl border border-gray-100 text-center"
             >
-              {/* Close Button */}
+            
               <button
                 onClick={() => setIsRewardOpen(false)}
                 className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
@@ -195,7 +195,6 @@ export default function AIChatWidget() {
                 Daily Reward
               </h2>
 
-              {/* Spinning Drum */}
               <motion.div
                 animate={{ rotate: 1080 }}
                 transition={{ duration: 3, ease: "easeInOut" }}

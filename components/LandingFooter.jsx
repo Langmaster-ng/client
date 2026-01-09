@@ -11,7 +11,7 @@ export default function Footer() {
         <div>
           <Link href="/" className="flex items-center space-x-2">
             <Image
-              src="/logo-icon.png" 
+              src="/LM.png" 
               alt="LangMaster"
               width={30}
               height={30}
@@ -31,10 +31,10 @@ export default function Footer() {
               <Link href="/languages" className="hover:text-[#267E43]">Languages</Link>
             </li>
             <li>
-              <Link href="/pricing" className="hover:text-[#267E43]">Pricing</Link>
+              <Link href="" className="hover:text-[#267E43]">Pricing</Link>
             </li>
             <li>
-              <Link href="/features" className="hover:text-[#267E43]">Features</Link>
+              <Link href="" className="hover:text-[#267E43]">Features</Link>
             </li>
           </ul>
         </div>
@@ -44,13 +44,13 @@ export default function Footer() {
           <h4 className="font-semibold text-[#363D49] mb-3">Resources</h4>
           <ul className="space-y-2 text-sm text-gray-600">
             <li>
-              <Link href="/blog" className="hover:text-[#267E43]">Blog</Link>
+              <Link href="" className="hover:text-[#267E43]">Blog</Link>
             </li>
             <li>
-              <Link href="/help" className="hover:text-[#267E43]">Help Center</Link>
+              <Link href="" className="hover:text-[#267E43]">Help Center</Link>
             </li>
             <li>
-              <Link href="/contact" className="hover:text-[#267E43]">Contact</Link>
+              <Link href="" className="hover:text-[#267E43]">Contact</Link>
             </li>
           </ul>
         </div>

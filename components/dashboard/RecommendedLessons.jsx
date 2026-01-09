@@ -56,7 +56,7 @@ export default function RecommendedLessons() {
         </button>
       </div>
 
-      {/* Scrollable Lessons */}
+     
       <div className="flex overflow-x-auto gap-5 scrollbar-hide py-2">
         {lessons.map((lesson, idx) => (
           <motion.div
@@ -67,7 +67,7 @@ export default function RecommendedLessons() {
             transition={{ delay: 0.1 * idx }}
             className="min-w-[240px] bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden cursor-pointer hover:shadow-lg transition"
           >
-            {/* Thumbnail */}
+           
             <div className="relative">
               <img
                 src={lesson.thumbnail}
@@ -80,7 +80,7 @@ export default function RecommendedLessons() {
               </div>
             </div>
 
-            {/* Details */}
+           
             <div className="p-4 space-y-2">
               <p className="font-semibold text-gray-800 text-sm leading-tight">
                 {lesson.title}
@@ -97,7 +97,7 @@ export default function RecommendedLessons() {
                 {lesson.difficulty}
               </p>
 
-              {/* Progress Bar */}
+            
               <div className="mt-2">
                 <div className="w-full bg-gray-100 rounded-full h-2">
                   <motion.div

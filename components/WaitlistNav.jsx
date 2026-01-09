@@ -8,7 +8,7 @@ import { FiX, FiMail } from "react-icons/fi";
 import toast, { Toaster } from "react-hot-toast";
 import { CheckCircle2, AlertTriangle, Info } from "lucide-react";
 
-/* ---------- Toast ---------- */
+
 function toastCard({ tone = "info", title, message }) {
   const tones = {
     success: {
@@ -69,7 +69,7 @@ const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE ||
   "https://lang-learn-app-app-production.up.railway.app";
 
-/* ---------- Navbar Component ---------- */
+
 export default function WaitlistNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -113,19 +113,19 @@ export default function WaitlistNavbar() {
 
   return (
     <>
-      {/* Global Toast */}
+    
       <Toaster position="top-right" />
 
-      {/* Navbar */}
+    
       <nav className="bg-white w-full fixed top-0 z-50 border-b border-gray-100 shadow-sm">
         <div className="container mx-auto flex items-center justify-between px-4 py-3">
-          {/* Logo */}
+        
           <Link href="/" className="flex items-center space-x-2">
             <Image src="/LM.png" alt="LangMaster" width={35} height={35} />
             <span className="font-bold text-lg text-[#363D49]">LangMaster</span>
           </Link>
 
-          {/* Desktop Links */}
+        
           <div className="hidden md:flex items-center space-x-8 font-medium">
             <Link href="#mission" className="text-[#363D49] hover:text-[#267E43]">
               Mission
@@ -144,7 +144,7 @@ export default function WaitlistNavbar() {
             </button>
           </div>
 
-          {/* Mobile Button */}
+     
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="md:hidden px-3 py-2 border border-gray-300 rounded-md text-sm text-[#363D49]"
@@ -153,7 +153,7 @@ export default function WaitlistNavbar() {
           </button>
         </div>
 
-        {/* Mobile Menu */}
+   
         <AnimatePresence>
           {menuOpen && (
             <motion.div
@@ -187,7 +187,7 @@ export default function WaitlistNavbar() {
         </AnimatePresence>
       </nav>
 
-      {/* Waitlist Modal */}
+ 
       <AnimatePresence>
         {modalOpen && (
           <motion.div

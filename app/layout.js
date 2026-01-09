@@ -1,7 +1,8 @@
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { AuthProvider } from "@/context/AuthContext";
 import { Inter } from "next/font/google";
-import Script from "next/script"; // ✅ import Next.js Script component
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
@@ -72,27 +73,24 @@ export const metadata = {
       "max-video-preview": -1,
     },
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    viewportFit: "cover",
-  },
   verification: {
     google: "P5P5x2wkEiR6NpMhZX4GIK_hIvYmM_otP5VsKM8p0uA",
   },
 };
 
-export default function RootLayout({ children }) {
-  if (typeof window !== "undefined" && window.location.pathname !== "/waitlist") {
-    window.location.href = "/waitlist";
-  }
+// ✅ FIX: Move viewport OUTSIDE metadata
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
+};
 
+export default function RootLayout({ children }) {
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
       <head />
       <body className="min-h-screen bg-white text-black dark:bg-[#111827] dark:text-white transition-colors duration-300 antialiased selection:bg-[#22C55E]/30">
-        {/* Google Analytics setup */}
         <Script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-Q9R09S5L05"
@@ -112,7 +110,10 @@ export default function RootLayout({ children }) {
             `,
           }}
         />
-        <ThemeProvider>{children}</ThemeProvider>
+
+        <ThemeProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -97,7 +97,7 @@ export default function RewardSpin() {
                 </motion.button>
               </div>
 
-              {/* Reward Display */}
+              
               {selectedReward && (
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}

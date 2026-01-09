@@ -17,12 +17,12 @@ export default function WelcomeSection() {
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="relative overflow-hidden rounded-2xl bg-white shadow-md border border-gray-100 p-6 md:p-8"
     >
-      {/* Glow Background */}
+     
       <div className="absolute inset-0 bg-gradient-to-r from-green-100/60 to-green-50/30 pointer-events-none" />
 
-      {/* Content */}
+
       <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-        {/* Left side: Greeting + CTA */}
+      
         <div>
           <motion.h1
             initial={{ opacity: 0, x: -20 }}
